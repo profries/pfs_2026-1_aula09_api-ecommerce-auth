@@ -13,6 +13,8 @@ import { Usuario } from './entity/usuario';
 import { UsuarioService } from './service/usuario-service';
 import { UsuarioController } from './controller/usuario-controller';
 import { usuarioRotas } from './router/usuario-router';
+import { LoginService } from './service/login-service';
+import { LoginController } from './controller/login-controller';
 
 const app = express();
 const port = 3000;
@@ -46,6 +48,10 @@ AppDataSource.initialize().then(async => {
     const usuarioController = new UsuarioController(usuarioService);
     app.use('/api/usuarios', usuarioRotas(usuarioController));
 
+    //Login
+    const loginService = new LoginService(usuarioRepository);
+    const loginController = new LoginController(loginService);
+    app.post('/api/login', loginController.realizaLogin);
 
     app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
