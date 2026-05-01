@@ -15,6 +15,7 @@ import { UsuarioController } from './controller/usuario-controller';
 import { usuarioRotas } from './router/usuario-router';
 import { LoginService } from './service/login-service';
 import { LoginController } from './controller/login-controller';
+import { TokenMiddleware } from './middleware/token-middleware';
 
 const app = express();
 const port = 3000;
@@ -34,13 +35,11 @@ AppDataSource.initialize().then(async => {
     const produtoRepository = AppDataSource.getRepository(Produto);
     const produtoService = new ProdutoService(produtoRepository);
     const produtoController = new ProdutoController(produtoService);
-    app.use('/api/produtos', produtoRotas(produtoController))
 
     //Pedidos
     const pedidoRepository = AppDataSource.getRepository(Pedido);
     const pedidoService = new PedidoService(pedidoRepository);
     const pedidoController = new PedidoController(pedidoService);
-    app.use('/api/pedidos', pedidoRotas(pedidoController));
 
     //Usuario
     const usuarioRepository = AppDataSource.getRepository(Usuario);
@@ -52,6 +51,15 @@ AppDataSource.initialize().then(async => {
     const loginService = new LoginService(usuarioRepository);
     const loginController = new LoginController(loginService);
     app.post('/api/login', loginController.realizaLogin);
+
+    //Middleware 
+    const tokenMiddleware = new TokenMiddleware(loginService);
+    app.use(tokenMiddleware.verificarAcesso);
+
+    //Aplicando Middleware para as rotas
+    app.use('/api/produtos', produtoRotas(produtoController))
+    app.use('/api/pedidos', pedidoRotas(pedidoController));
+
 
     app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);

@@ -22,4 +22,19 @@ export class LoginService {
         }
         throw ({id: 401, msg:"Usuario ou senha invalidos"});
     }
+
+    async validarToken (token: string): Promise<void> {
+        try{
+            console.log("Token",token);
+
+            const payload = jwt.verify(token, SECRET);            
+            if(!payload) {
+                throw({id: 401, msg: "Token inválido"});
+            }
+            return;
+        }
+        catch (err) {
+            throw({id: 401, msg: "Token inválido"});
+        }
+    }
 }
